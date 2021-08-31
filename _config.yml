@@ -1,0 +1,18 @@
+# https://jupyterbook.org/customize/config.html
+
+title: Query Me
+author: BQ FUN
+
+html:
+  favicon: "favicon.ico"
+  use_edit_page_button: true
+  use_issues_button: true
+  google_analytics_id: "UA-156581645-5"
+  baseurl: "https://bqfun.github.io/query-me/"
+
+launch_buttons:
+  thebe: true
+
+repository:
+  url: https://github.com/bqfun/query-me
+  branch: main

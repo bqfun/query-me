@@ -1,0 +1,6 @@
+# https://jupyterbook.org/customize/toc.html
+
+format: jb-book
+root: README
+chapters:
+- file: notebooks
