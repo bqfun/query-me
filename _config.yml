@@ -3,6 +3,10 @@
 title: Query Me
 author: BQ FUN
 
+# https://jupyterbook.org/content/execute.html
+execute:
+  execute_notebooks: force
+
 html:
   favicon: "favicon.ico"
   use_edit_page_button: true
