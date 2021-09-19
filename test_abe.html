@@ -53,6 +53,7 @@
     <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="年齢(3区分)別の利用者数" href="%E5%B9%B4%E9%BD%A2%283%E5%8C%BA%E5%88%86%29%E5%88%A5%E3%81%AE%E5%88%A9%E7%94%A8%E8%80%85%E6%95%B0.html" />
     <link rel="prev" title="日付別の売り上げ" href="notebooks.html" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="docsearch:language" content="en" />
@@ -97,6 +98,11 @@
  <li class="toctree-l1 current active">
   <a class="current reference internal" href="#">
    日付別の売り上げ
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="%E5%B9%B4%E9%BD%A2%283%E5%8C%BA%E5%88%86%29%E5%88%A5%E3%81%AE%E5%88%A9%E7%94%A8%E8%80%85%E6%95%B0.html">
+   年齢(3区分)別の利用者数
   </a>
  </li>
 </ul>
@@ -213,53 +219,34 @@
 <p>購買履歴から日付別の売上を計算するクエリです。</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-sqlite3 notranslate"><div class="highlight"><pre><span></span><span class="go">%LOAD example.db</span>
+<div class="highlight-mysql notranslate"><div class="highlight"><pre><span></span><span class="o">%</span><span class="k">LOAD</span> <span class="n">sqlite3</span> <span class="n">db</span><span class="o">=</span><span class="n">example</span><span class="p">.</span><span class="n">db</span>
 </pre></div>
 </div>
 </div>
 </div>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-sqlite3 notranslate"><div class="highlight"><pre><span></span><span class="go">WITH purchases AS (</span>
-<span class="go">  SELECT DATETIME(&quot;2021-09-01 12:34:56&quot;) AS timestamp, 500 AS amount</span>
-<span class="go">  UNION ALL</span>
-<span class="go">  SELECT DATETIME(&quot;2021-09-02 01:12:23&quot;) AS timestamp, 150 AS amount</span>
-<span class="go">  UNION ALL</span>
-<span class="go">  SELECT DATETIME(&quot;2021-09-02 12:23:34&quot;) AS timestamp, 200 AS amount</span>
-<span class="go">  UNION ALL</span>
-<span class="go">  SELECT DATETIME(&quot;2021-09-04 11:11:11&quot;) AS timestamp, 700 AS amount</span>
-<span class="go">)</span>
-<span class="go">SELECT</span>
-<span class="go">  DATE(timestamp) AS date,</span>
-<span class="go">  SUM(amount) AS amount</span>
-<span class="go">FROM</span>
-<span class="go">  purchases</span>
-<span class="go">GROUP BY</span>
-<span class="go">  date</span>
-<span class="go">ORDER BY</span>
-<span class="go">  date</span>
+<div class="highlight-mysql notranslate"><div class="highlight"><pre><span></span><span class="k">WITH</span> <span class="n">purchases</span> <span class="k">AS</span> <span class="p">(</span>
+  <span class="k">SELECT</span> <span class="kt">DATETIME</span><span class="p">(</span><span class="s2">&quot;2021-09-01 12:34:56&quot;</span><span class="p">)</span> <span class="k">AS</span> <span class="kt">timestamp</span><span class="p">,</span> <span class="mi">500</span> <span class="k">AS</span> <span class="n">amount</span>
+  <span class="k">UNION</span> <span class="k">ALL</span>
+  <span class="k">SELECT</span> <span class="kt">DATETIME</span><span class="p">(</span><span class="s2">&quot;2021-09-02 01:12:23&quot;</span><span class="p">)</span> <span class="k">AS</span> <span class="kt">timestamp</span><span class="p">,</span> <span class="mi">150</span> <span class="k">AS</span> <span class="n">amount</span>
+  <span class="k">UNION</span> <span class="k">ALL</span>
+  <span class="k">SELECT</span> <span class="kt">DATETIME</span><span class="p">(</span><span class="s2">&quot;2021-09-02 12:23:34&quot;</span><span class="p">)</span> <span class="k">AS</span> <span class="kt">timestamp</span><span class="p">,</span> <span class="mi">200</span> <span class="k">AS</span> <span class="n">amount</span>
+  <span class="k">UNION</span> <span class="k">ALL</span>
+  <span class="k">SELECT</span> <span class="kt">DATETIME</span><span class="p">(</span><span class="s2">&quot;2021-09-04 11:11:11&quot;</span><span class="p">)</span> <span class="k">AS</span> <span class="kt">timestamp</span><span class="p">,</span> <span class="mi">700</span> <span class="k">AS</span> <span class="n">amount</span>
+<span class="p">)</span>
+<span class="k">SELECT</span>
+  <span class="kt">DATE</span><span class="p">(</span><span class="kt">timestamp</span><span class="p">)</span> <span class="k">AS</span> <span class="kt">date</span><span class="p">,</span>
+  <span class="nf">SUM</span><span class="p">(</span><span class="n">amount</span><span class="p">)</span> <span class="k">AS</span> <span class="n">amount</span>
+<span class="k">FROM</span>
+  <span class="n">purchases</span>
+<span class="k">GROUP</span> <span class="k">BY</span>
+  <span class="kt">date</span>
+<span class="k">ORDER</span> <span class="k">BY</span>
+  <span class="kt">date</span>
 </pre></div>
 </div>
 </div>
-<div class="cell_output docutils container">
-<div class="output text_html"><table>
-<tr>
-<th>date</th>
-<th>amount</th>
-</tr>
-<tr>
-<td>2021-09-01</td>
-<td>500</td>
-</tr>
-<tr>
-<td>2021-09-02</td>
-<td>350</td>
-</tr>
-<tr>
-<td>2021-09-04</td>
-<td>700</td>
-</tr>
-</table></div></div>
 </div>
 </div>
 
@@ -272,16 +259,16 @@
         },
         codeMirrorConfig: {
             theme: "abcdef",
-            mode: "xsqlite"
+            mode: "xsql"
         },
         kernelOptions: {
-            kernelName: "xsqlite",
+            kernelName: "xsql",
             path: "./."
         },
         predefinedOutput: true
     }
     </script>
-    <script>kernelName = 'xsqlite'</script>
+    <script>kernelName = 'xsql'</script>
 
               </div>
               
@@ -301,6 +288,15 @@
             </div>
         </a>
     </div>
+     <div id="next">
+        <a class="right-next" href="%E5%B9%B4%E9%BD%A2%283%E5%8C%BA%E5%88%86%29%E5%88%A5%E3%81%AE%E5%88%A9%E7%94%A8%E8%80%85%E6%95%B0.html" title="next page">
+            <div class="prevnext-info">
+                <p class="prevnext-label">next</p>
+                <p class="prevnext-title">年齢(3区分)別の利用者数</p>
+            </div>
+            <i class="prevnext-label fas fa-angle-right"></i>
+        </a>
+     </div>
 
 </div>
         
