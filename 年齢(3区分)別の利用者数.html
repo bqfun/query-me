@@ -245,19 +245,19 @@
 今回は、年齢性別を区分しますが、仮説に応じて様々な観点で分析することが重要です。</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-mysql notranslate"><div class="highlight"><pre><span></span><span class="o">%</span><span class="k">LOAD</span> <span class="n">sqlite3</span> <span class="n">db</span><span class="o">=</span><span class="n">example</span><span class="p">.</span><span class="n">db</span>
+<div class="highlight-sqlite3 notranslate"><div class="highlight"><pre><span></span><span class="go">%LOAD example.db</span>
 </pre></div>
 </div>
 </div>
 </div>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-mysql notranslate"><div class="highlight"><pre><span></span><span class="k">SELECT</span>
-  <span class="o">*</span>
-<span class="k">FROM</span>
-  <span class="n">users</span>
-<span class="k">LIMIT</span>
-  <span class="mi">5</span>
+<div class="highlight-sqlite3 notranslate"><div class="highlight"><pre><span></span><span class="go">SELECT</span>
+<span class="go">  *</span>
+<span class="go">FROM</span>
+<span class="go">  users</span>
+<span class="go">LIMIT</span>
+<span class="go">  5</span>
 </pre></div>
 </div>
 </div>
@@ -299,22 +299,21 @@
 <td>1919-03-29</td>
 <td>M</td>
 </tr>
-</table>
-5 rows in set (0.00 sec)</div></div>
+</table></div></div>
 </div>
 <div class="section" id="id2">
 <h2>生年月日から年齢を求める<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h2>
 <p>生年月日を管理している場合は、計算日との差分によって年齢を算出します。</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-mysql notranslate"><div class="highlight"><pre><span></span><span class="k">SELECT</span>
-  <span class="o">*</span><span class="p">,</span>
-  <span class="c1">-- 年齢を求める。SQLite以外では別な求め方になるはずです。</span>
-  <span class="nf">CAST</span><span class="p">(</span><span class="n">STRFTIME</span><span class="p">(</span><span class="s1">&#39;%Y.%m%d&#39;</span><span class="p">,</span> <span class="s1">&#39;now&#39;</span><span class="p">,</span> <span class="s1">&#39;+9 hours&#39;</span><span class="p">)</span> <span class="o">-</span> <span class="n">STRFTIME</span><span class="p">(</span><span class="s1">&#39;%Y.%m%d&#39;</span><span class="p">,</span> <span class="n">birthdate</span><span class="p">)</span> <span class="k">AS</span> <span class="kt">INT</span><span class="p">)</span> <span class="k">AS</span> <span class="n">age</span>
-<span class="k">FROM</span>
-  <span class="n">users</span>
-<span class="k">LIMIT</span>
-  <span class="mi">5</span>
+<div class="highlight-sqlite3 notranslate"><div class="highlight"><pre><span></span><span class="go">SELECT</span>
+<span class="go">  *,</span>
+<span class="go">  -- 年齢を求める。SQLite以外では別な求め方になるはずです。</span>
+<span class="go">  CAST(STRFTIME(&#39;%Y.%m%d&#39;, &#39;now&#39;, &#39;+9 hours&#39;) - STRFTIME(&#39;%Y.%m%d&#39;, birthdate) AS INT) AS age</span>
+<span class="go">FROM</span>
+<span class="go">  users</span>
+<span class="go">LIMIT</span>
+<span class="go">  5</span>
 </pre></div>
 </div>
 </div>
@@ -362,8 +361,7 @@
 <td>M</td>
 <td>102</td>
 </tr>
-</table>
-5 rows in set (0.00 sec)</div></div>
+</table></div></div>
 </div>
 </div>
 <div class="section" id="id3">
@@ -371,28 +369,79 @@
 <p>近い年齢を<code class="docutils literal notranslate"><span class="pre">CASE</span></code>文でグループ名にマッピングして集計しやすくする。</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-mysql notranslate"><div class="highlight"><pre><span></span><span class="k">WITH</span> <span class="n">users_with_age</span> <span class="k">AS</span> <span class="p">(</span>
-  <span class="k">SELECT</span>
-    <span class="o">*</span><span class="p">,</span>
-    <span class="c1">-- 年齢を求める。SQLite以外では別な求め方になるはずです。</span>
-    <span class="nf">CAST</span><span class="p">(</span><span class="n">STRFTIME</span><span class="p">(</span><span class="s1">&#39;%Y.%m%d&#39;</span><span class="p">,</span> <span class="s1">&#39;now&#39;</span><span class="p">,</span> <span class="s1">&#39;+9 hours&#39;</span><span class="p">)</span> <span class="o">-</span> <span class="n">STRFTIME</span><span class="p">(</span><span class="s1">&#39;%Y.%m%d&#39;</span><span class="p">,</span> <span class="n">birthdate</span><span class="p">)</span> <span class="k">AS</span> <span class="kt">INT</span><span class="p">)</span> <span class="k">AS</span> <span class="n">age</span>
-  <span class="k">FROM</span>
-    <span class="n">users</span>
-<span class="p">)</span>
-<span class="k">SELECT</span>
-  <span class="o">*</span><span class="p">,</span>
-  <span class="k">CASE</span>
-    <span class="k">WHEN</span> <span class="n">age</span> <span class="k">BETWEEN</span> <span class="mi">0</span> <span class="k">AND</span> <span class="mi">14</span> <span class="k">THEN</span> <span class="s1">&#39;14歳以下&#39;</span>
-    <span class="k">WHEN</span> <span class="n">age</span> <span class="k">BETWEEN</span> <span class="mi">15</span> <span class="k">AND</span> <span class="mi">64</span> <span class="k">THEN</span> <span class="s1">&#39;15～64歳&#39;</span>
-    <span class="k">WHEN</span> <span class="mi">65</span> <span class="o">&lt;=</span> <span class="n">age</span> <span class="k">THEN</span> <span class="s1">&#39;65歳以上&#39;</span>
-  <span class="k">END</span> <span class="k">AS</span> <span class="n">age_category</span>
-<span class="k">FROM</span>
-  <span class="n">users_with_age</span>
-<span class="k">LIMIT</span>
-  <span class="mi">5</span>
+<div class="highlight-sqlite3 notranslate"><div class="highlight"><pre><span></span><span class="go">WITH users_with_age AS (</span>
+<span class="go">  SELECT</span>
+<span class="go">    *,</span>
+<span class="go">    -- 年齢を求める。SQLite以外では別な求め方になるはずです。</span>
+<span class="go">    CAST(STRFTIME(&#39;%Y.%m%d&#39;, &#39;now&#39;, &#39;+9 hours&#39;) - STRFTIME(&#39;%Y.%m%d&#39;, birthdate) AS INT) AS age</span>
+<span class="go">  FROM</span>
+<span class="go">    users</span>
+<span class="go">)</span>
+<span class="go">SELECT</span>
+<span class="go">  *,</span>
+<span class="go">  CASE</span>
+<span class="go">    WHEN age BETWEEN 0 AND 14 THEN &#39;14歳以下&#39;</span>
+<span class="go">    WHEN age BETWEEN 15 AND 64 THEN &#39;15～64歳&#39;</span>
+<span class="go">    WHEN 65 &lt;= age THEN &#39;65歳以上&#39;</span>
+<span class="go">  END AS age_category</span>
+<span class="go">FROM</span>
+<span class="go">  users_with_age</span>
+<span class="go">LIMIT</span>
+<span class="go">  5</span>
 </pre></div>
 </div>
 </div>
+<div class="cell_output docutils container">
+<div class="output text_html"><table>
+<tr>
+<th>id</th>
+<th>name</th>
+<th>birthdate</th>
+<th>sex</th>
+<th>age</th>
+<th>age_category</th>
+</tr>
+<tr>
+<td>1</td>
+<td>田中 洋介</td>
+<td>1960-06-27</td>
+<td>M</td>
+<td>61</td>
+<td>15～64歳</td>
+</tr>
+<tr>
+<td>2</td>
+<td>佐藤 直樹</td>
+<td>1961-03-07</td>
+<td>M</td>
+<td>60</td>
+<td>15～64歳</td>
+</tr>
+<tr>
+<td>3</td>
+<td>佐藤 英樹</td>
+<td>1912-04-24</td>
+<td>M</td>
+<td>109</td>
+<td>65歳以上</td>
+</tr>
+<tr>
+<td>4</td>
+<td>田中 知実</td>
+<td>1953-03-06</td>
+<td>F</td>
+<td>68</td>
+<td>65歳以上</td>
+</tr>
+<tr>
+<td>5</td>
+<td>佐々木 充</td>
+<td>1919-03-29</td>
+<td>M</td>
+<td>102</td>
+<td>65歳以上</td>
+</tr>
+</table></div></div>
 </div>
 </div>
 <div class="section" id="id4">
@@ -400,39 +449,77 @@
 <p>年齢区分と性別をグルーピングして、どんな属性の利用者が多いのか特定する。</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-mysql notranslate"><div class="highlight"><pre><span></span><span class="k">WITH</span> <span class="n">users_with_age</span> <span class="k">AS</span> <span class="p">(</span>
-  <span class="k">SELECT</span>
-    <span class="o">*</span><span class="p">,</span>
-    <span class="c1">-- 年齢を求める。SQLite以外では別な求め方になるはずです。</span>
-    <span class="nf">CAST</span><span class="p">(</span><span class="n">STRFTIME</span><span class="p">(</span><span class="s1">&#39;%Y.%m%d&#39;</span><span class="p">,</span> <span class="s1">&#39;now&#39;</span><span class="p">,</span> <span class="s1">&#39;+9 hours&#39;</span><span class="p">)</span> <span class="o">-</span> <span class="n">STRFTIME</span><span class="p">(</span><span class="s1">&#39;%Y.%m%d&#39;</span><span class="p">,</span> <span class="n">birthdate</span><span class="p">)</span> <span class="k">AS</span> <span class="kt">INT</span><span class="p">)</span> <span class="k">AS</span> <span class="n">age</span>
-  <span class="k">FROM</span>
-    <span class="n">users</span>
-<span class="p">),</span> <span class="n">users_with_age_category</span> <span class="k">AS</span> <span class="p">(</span>
-  <span class="k">SELECT</span>
-    <span class="o">*</span><span class="p">,</span>
-    <span class="k">CASE</span>
-      <span class="k">WHEN</span> <span class="n">age</span> <span class="k">BETWEEN</span> <span class="mi">0</span> <span class="k">AND</span> <span class="mi">14</span> <span class="k">THEN</span> <span class="s1">&#39;14歳以下&#39;</span>
-      <span class="k">WHEN</span> <span class="n">age</span> <span class="k">BETWEEN</span> <span class="mi">15</span> <span class="k">AND</span> <span class="mi">64</span> <span class="k">THEN</span> <span class="s1">&#39;15～64歳&#39;</span>
-      <span class="k">WHEN</span> <span class="mi">65</span> <span class="o">&lt;=</span> <span class="n">age</span> <span class="k">THEN</span> <span class="s1">&#39;65歳以上&#39;</span>
-    <span class="k">END</span> <span class="k">AS</span> <span class="n">age_category</span>
-  <span class="k">FROM</span>
-    <span class="n">users_with_age</span>
-<span class="p">)</span>
-<span class="k">SELECT</span>
-  <span class="n">age_category</span><span class="p">,</span>
-  <span class="n">sex</span><span class="p">,</span>
-  <span class="nf">COUNT</span><span class="p">(</span><span class="o">*</span><span class="p">)</span> <span class="k">AS</span> <span class="n">count</span>
-<span class="k">FROM</span>
-  <span class="n">users_with_age_category</span>
-<span class="k">GROUP</span> <span class="k">BY</span>
-  <span class="n">age_category</span><span class="p">,</span>
-  <span class="n">sex</span>
-<span class="k">ORDER</span> <span class="k">BY</span>
-  <span class="n">age_category</span><span class="p">,</span>
-  <span class="n">sex</span>
+<div class="highlight-sqlite3 notranslate"><div class="highlight"><pre><span></span><span class="go">WITH users_with_age AS (</span>
+<span class="go">  SELECT</span>
+<span class="go">    *,</span>
+<span class="go">    -- 年齢を求める。SQLite以外では別な求め方になるはずです。</span>
+<span class="go">    CAST(STRFTIME(&#39;%Y.%m%d&#39;, &#39;now&#39;, &#39;+9 hours&#39;) - STRFTIME(&#39;%Y.%m%d&#39;, birthdate) AS INT) AS age</span>
+<span class="go">  FROM</span>
+<span class="go">    users</span>
+<span class="go">), users_with_age_category AS (</span>
+<span class="go">  SELECT</span>
+<span class="go">    *,</span>
+<span class="go">    CASE</span>
+<span class="go">      WHEN age BETWEEN 0 AND 14 THEN &#39;14歳以下&#39;</span>
+<span class="go">      WHEN age BETWEEN 15 AND 64 THEN &#39;15～64歳&#39;</span>
+<span class="go">      WHEN 65 &lt;= age THEN &#39;65歳以上&#39;</span>
+<span class="go">    END AS age_category</span>
+<span class="go">  FROM</span>
+<span class="go">    users_with_age</span>
+<span class="go">)</span>
+<span class="go">SELECT</span>
+<span class="go">  age_category,</span>
+<span class="go">  sex,</span>
+<span class="go">  COUNT(*) AS count</span>
+<span class="go">FROM</span>
+<span class="go">  users_with_age_category</span>
+<span class="go">GROUP BY</span>
+<span class="go">  age_category,</span>
+<span class="go">  sex</span>
+<span class="go">ORDER BY</span>
+<span class="go">  age_category,</span>
+<span class="go">  sex</span>
 </pre></div>
 </div>
 </div>
+<div class="cell_output docutils container">
+<div class="output text_html"><table>
+<tr>
+<th>age_category</th>
+<th>sex</th>
+<th>count</th>
+</tr>
+<tr>
+<td>14歳以下</td>
+<td>F</td>
+<td>75</td>
+</tr>
+<tr>
+<td>14歳以下</td>
+<td>M</td>
+<td>58</td>
+</tr>
+<tr>
+<td>15～64歳</td>
+<td>F</td>
+<td>219</td>
+</tr>
+<tr>
+<td>15～64歳</td>
+<td>M</td>
+<td>219</td>
+</tr>
+<tr>
+<td>65歳以上</td>
+<td>F</td>
+<td>217</td>
+</tr>
+<tr>
+<td>65歳以上</td>
+<td>M</td>
+<td>212</td>
+</tr>
+</table></div></div>
 </div>
 </div>
 </div>
@@ -446,16 +533,16 @@
         },
         codeMirrorConfig: {
             theme: "abcdef",
-            mode: "xsql"
+            mode: "xsqlite"
         },
         kernelOptions: {
-            kernelName: "xsql",
+            kernelName: "xsqlite",
             path: "./."
         },
         predefinedOutput: true
     }
     </script>
-    <script>kernelName = 'xsql'</script>
+    <script>kernelName = 'xsqlite'</script>
 
               </div>
               
