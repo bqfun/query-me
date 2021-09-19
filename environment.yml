@@ -3,5 +3,4 @@ channels:
   - conda-forge
 dependencies:
   - python=3.7
-  - soci-sqlite
-  - xeus-sql
+  - xeus-sqlite
